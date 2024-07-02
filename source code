@@ -1,0 +1,74 @@
+// Pin definitions
+const int S0 = 2;
+const int S1 = 3;
+const int S2 = 4;
+const int sensorOut = 5;
+
+// LED pins
+const int redLED = 8;
+const int yellowLED = 9;
+const int greenLED = 10;
+
+void setup() {
+  // Setup color sensor pins
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(sensorOut, INPUT);
+  
+  // Setup LED pins
+  pinMode(redLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+  
+  // Configure color sensor for color detection
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+  
+  // Initialize Serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read color values
+  int red, green, blue;
+  red = readColor(LOW, LOW);   // Red filter
+  delay(100);
+  green = readColor(HIGH, HIGH); // Green filter
+  delay(100);
+  blue = readColor(LOW, HIGH);  // Blue filter
+  
+  // Print color values (for debugging)
+  Serial.print("R:"); Serial.print(red);
+  Serial.print(" G:"); Serial.print(green);
+  Serial.print(" B:"); Serial.println(blue);
+  
+  // Determine which LED to light based on color detection
+  if (red > green && red > blue) {
+    // Red color detected
+    digitalWrite(redLED, HIGH);
+    digitalWrite(yellowLED, LOW);
+    digitalWrite(greenLED, LOW);
+  } else if (green > red && green > blue) {
+    // Green color detected
+    digitalWrite(redLED, LOW);
+    digitalWrite(yellowLED, LOW);
+    digitalWrite(greenLED, HIGH);
+  } else {
+    // Yellow or other color detected
+    digitalWrite(redLED, LOW);
+    digitalWrite(yellowLED, HIGH);
+    digitalWrite(greenLED, LOW);
+  }
+  
+  delay(500); // Adjust delay as necessary
+}
+
+int readColor(bool frequency0, bool frequency1) {
+  // Set the S2 and S3 pins to set the frequency scaling
+  digitalWrite(S2, frequency0);
+  digitalWrite(S3, frequency1);
+  
+  // Read the sensor output
+  return pulseIn(sensorOut, LOW);
+}
